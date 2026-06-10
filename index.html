@@ -83,7 +83,7 @@
     </div>
 
     <div id="pageLogin" class="page active">
-        <h2>Supplies Office HQ Bogor - Login</h2>
+        <h2>Supplies Office SO - Login</h2>
         <div class="form-group">
             <label>Akun Email</label>
             <input type="email" id="loginEmail" placeholder="Masukkan email terdaftar">
@@ -103,8 +103,8 @@
             <input type="text" id="regNama" placeholder="Nama lengkap pengelola">
         </div>
         <div class="form-group">
-            <label>Lokasi Kantor</label>
-            <input type="text" id="regLokasi" oninput="cariLokasiSO(this.value)" placeholder="Ketik lokasi Kantor Anda..." autocomplete="off">
+            <label>Lokasi SO</label>
+            <input type="text" id="regLokasi" oninput="cariLokasiSO(this.value)" placeholder="Ketik lokasi SO Anda..." autocomplete="off">
             <div id="soSuggestions" class="autocomplete-suggestions"></div>
         </div>
         <div class="form-group">
@@ -131,7 +131,7 @@
     <div id="pageUtama" class="page">
         <h2>Form Pengambilan Barang</h2>
         <div class="user-info-banner">
-            Akun Login: <strong id="bannerEmail">-</strong> | Lokasi Kantor: <strong id="bannerLokasi">-</strong>
+            Akun Login: <strong id="bannerEmail">-</strong> | Lokasi Pusat: <strong id="bannerLokasi">-</strong>
         </div>
         
         <div class="form-group">
@@ -317,7 +317,7 @@
         if (!lokasiInput.toUpperCase().startsWith("SO ")) { lokasiInput = "SO " + lokasiInput; }
         
         let validSO = databaseSO.find(item => item.toLowerCase().trim() === lokasiInput.toLowerCase());
-        if(!validSO) return alert("Lokasi Kantor tidak terdaftar!");
+        if(!validSO) return alert("Lokasi SO tidak terdaftar!");
 
         toggleLoader(true);
         try {
