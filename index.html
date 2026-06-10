@@ -83,7 +83,7 @@
     </div>
 
     <div id="pageLogin" class="page active">
-        <h2>Supplies Office HQ Bogor - Login</h2>
+        <h2>Supplies Office Kantor - Login</h2>
         <div class="form-group">
             <label>Akun Email</label>
             <input type="email" id="loginEmail" placeholder="Masukkan email terdaftar">
@@ -103,8 +103,8 @@
             <input type="text" id="regNama" placeholder="Nama lengkap pengelola">
         </div>
         <div class="form-group">
-            <label>Lokasi SO</label>
-            <input type="text" id="regLokasi" oninput="cariLokasiSO(this.value)" placeholder="Ketik lokasi SO Anda..." autocomplete="off">
+            <label>Lokasi Kantor</label>
+            <input type="text" id="regLokasi" oninput="cariLokasiKantor(this.value)" placeholder="Ketik lokasi kantor Anda..." autocomplete="off">
             <div id="soSuggestions" class="autocomplete-suggestions"></div>
         </div>
         <div class="form-group">
@@ -131,7 +131,7 @@
     <div id="pageUtama" class="page">
         <h2>Form Pengambilan Barang</h2>
         <div class="user-info-banner">
-            Akun Login: <strong id="bannerEmail">-</strong> | Lokasi Pusat: <strong id="bannerLokasi">-</strong>
+            Akun Login: <strong id="bannerEmail">-</strong> | Lokasi Kantor: <strong id="bannerLokasi">-</strong>
         </div>
         
         <div class="form-group">
@@ -156,15 +156,15 @@
         </div>
 
         <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 16px; color:#333;">Daftar Item ATK / Supplies:</h3>
+        
+        <div class="checkbox-container">
+            <input type="checkbox" id="chkSamaAlasan" onchange="toggleLogikaAlasanSamakan()">
+            <label for="chkSamaAlasan">Alasan untuk semua item sama</label>
+        </div>
 
         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
             <button type="button" class="btn-add-row" onclick="tambahBarisTabel()">+ Tambah Baris Item</button>
             <div id="hitungItemBadge" class="badge-counter">Jumlah Item: 1 / Max 10 Items</div>
-        </div>
-
-        <div class="checkbox-container">
-            <input type="checkbox" id="chkSamaAlasan" onchange="toggleLogikaAlasanSamakan()">
-            <label for="chkSamaAlasan">Alasan untuk semua item sama</label>
         </div>
         
         <div class="table-responsive">
@@ -198,7 +198,7 @@
 </div>
 
 <script>
-    const URL_API = "https://script.google.com/macros/s/AKfycbxD3TD7g7FBs3OYU6Z609UNOJyDAX2yvboHvnLEqad40Suy7aSE4jxqbrY_GPTP8xuqKQ/exec";
+    const URL_API = "https://script.google.com/macros/s/AKfycbyN7AqXU6UVvOtJfiskcTvW0YD6v3ndl451eF4hl79ePYJ6f9vpHe8KDtP-wRmKrNXKSQ/exec";
     let databaseBarang = [];
     let databaseSO = [];
     let databaseDept = []; 
@@ -234,7 +234,7 @@
             let res = await fetch(`${URL_API}?target=lokasi`);
             let txt = await res.text();
             databaseSO = JSON.parse(txt);
-        } catch(e) { console.error("Gagal sinkronisasi data SO:", e); }
+        } catch(e) { console.error("Gagal sinkronisasi data kantor:", e); }
     }
 
     async function muatUlangDept() {
@@ -259,7 +259,8 @@
         toggleLoader(false);
     }
 
-    function cariLokasiSO(val) {
+    // FUNGSI CARI LOKASI KANTOR (MENGGANTIKAN CARI LOKASI SO)
+    function cariLokasiKantor(val) {
         let div = document.getElementById('soSuggestions');
         div.innerHTML = "";
         if (!val || !val.trim()) { div.style.display = "none"; return; }
@@ -314,10 +315,16 @@
         const sandi = document.getElementById('regSandi').value.trim();
         
         if(!nama || !lokasiInput || !divisi || !department || !email || !sandi) return alert("Semua kolom registrasi wajib diisi!");
-        if (!lokasiInput.toUpperCase().startsWith("SO ")) { lokasiInput = "SO " + lokasiInput; }
         
-        let validSO = databaseSO.find(item => item.toLowerCase().trim() === lokasiInput.toLowerCase());
-        if(!validSO) return alert("Lokasi SO tidak terdaftar!");
+        // Pengecekan fleksibel: mencocokkan input dengan database (bisa pakai atau tanpa "SO ")
+        let validSO = databaseSO.find(item => {
+            if (!item) return false;
+            let namaSOData = String(item).toLowerCase().trim();
+            let namaSOInput = lokasiInput.toLowerCase().trim();
+            return namaSOData === namaSOInput || namaSOData === "so " + namaSOInput;
+        });
+
+        if(!validSO) return alert("Lokasi Kantor tidak terdaftar di database! Harap pilih dari pilihan rekomendasi yang muncul.");
 
         toggleLoader(true);
         try {
