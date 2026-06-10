@@ -20,6 +20,12 @@
         button:hover { background: #0056b3; }
         .link-btn { text-align: center; margin-top: 15px; font-size: 14px; color: #007bff; cursor: pointer; text-decoration: underline; }
         
+        /* CSS untuk Pembungkus Input Sandi & Tombol Mata */
+        .password-wrapper { position: relative; display: flex; align-items: center; }
+        .password-wrapper input { padding-right: 40px; } /* Beri ruang di kanan agar teks tidak tertabrak ikon */
+        .toggle-password { position: absolute; right: 12px; cursor: pointer; user-select: none; color: #666; font-size: 16px; }
+        .toggle-password:hover { color: #007bff; }
+        
         .autocomplete-suggestions { 
             position: absolute; top: 100%; left: 0; border: 2px solid #007bff; background: white; width: 100%; min-width: 280px; z-index: 999999 !important; max-height: 280px; overflow-y: auto; display: none; border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.25); -webkit-overflow-scrolling: touch;
         }
@@ -90,7 +96,10 @@
         </div>
         <div class="form-group">
             <label>Sandi (Password)</label>
-            <input type="password" id="loginSandi" placeholder="Masukkan sandi">
+            <div class="password-wrapper">
+                <input type="password" id="loginSandi" placeholder="Masukkan sandi">
+                <span class="toggle-password" onclick="toggleLihatSandi('loginSandi', this)">👁</span>
+            </div>
         </div>
         <button onclick="prosesLogin()">LOG IN</button>
         <div class="link-btn" onclick="bukaPageSignUp()">Belum punya akun? Daftar di sini</div>
@@ -122,7 +131,10 @@
         </div>
         <div class="form-group">
             <label>Sandi (Password)</label>
-            <input type="password" id="regSandi" placeholder="Buat sandi baru">
+            <div class="password-wrapper">
+                <input type="password" id="regSandi" placeholder="Buat sandi baru">
+                <span class="toggle-password" onclick="toggleLihatSandi('regSandi', this)">👁</span>
+            </div>
         </div>
         <button onclick="prosesSignUp()">DAFTAR AKUN</button>
         <div class="link-btn" onclick="pindahPage('pageLogin')">Sudah punya akun? Kembali ke Login</div>
@@ -209,6 +221,18 @@
         await muatUlangSO();
     });
 
+    // FUNGSI UTAMA: TOGGLE SHOW/HIDE PASSWORD BERDASARKAN PARAMETER SIMBOL PILIHANMU
+    function toggleLihatSandi(inputId, ikonElement) {
+        const inputSandi = document.getElementById(inputId);
+        if (inputSandi.type === "password") {
+            inputSandi.type = "text";
+            ikonElement.innerText = "⊘"; // Saat teks terlihat, ganti jadi ikon Hide (⊘) untuk menyembunyikannya kembali
+        } else {
+            inputSandi.type = "password";
+            ikonElement.innerText = "👁"; // Saat tersembunyi, ganti jadi ikon See (👁) untuk mengintip teks kembali
+        }
+    }
+
     function pindahPage(pageId) {
         const container = document.getElementById('mainContainer');
         if (pageId === 'pageUtama') {
@@ -253,13 +277,16 @@
         document.getElementById('soSuggestions').style.display = "none";
         document.getElementById('divisiSuggestions').style.display = "none";
         
+        // Reset tipe password ke default tertutup dan ikon ke See (👁) saat berpindah halaman baru
+        document.getElementById('regSandi').type = "password";
+        document.querySelector('#pageSignUp .toggle-password').innerText = "👁";
+        
         toggleLoader(true);
         if(databaseSO.length === 0) await muatUlangSO();
         if(databaseDept.length === 0) await muatUlangDept();
         toggleLoader(false);
     }
 
-    // FUNGSI CARI LOKASI KANTOR (MENGGANTIKAN CARI LOKASI SO)
     function cariLokasiKantor(val) {
         let div = document.getElementById('soSuggestions');
         div.innerHTML = "";
@@ -316,7 +343,6 @@
         
         if(!nama || !lokasiInput || !divisi || !department || !email || !sandi) return alert("Semua kolom registrasi wajib diisi!");
         
-        // Pengecekan fleksibel: mencocokkan input dengan database (bisa pakai atau tanpa "SO ")
         let validSO = databaseSO.find(item => {
             if (!item) return false;
             let namaSOData = String(item).toLowerCase().trim();
@@ -619,6 +645,11 @@
         userAktif = null;
         document.getElementById('loginEmail').value = "";
         document.getElementById('loginSandi').value = "";
+        
+        // Reset tipe password ke default tertutup dan ikon ke See (👁) saat log out
+        document.getElementById('loginSandi').type = "password";
+        document.querySelector('#pageLogin .toggle-password').innerText = "👁";
+        
         pindahPage('pageLogin');
     }
 
